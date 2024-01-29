@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 import time
 import os
 import csv
+import subprocess
 
 options = webdriver.ChromeOptions()
 options.add_argument("disable-infobars")
@@ -15,59 +16,47 @@ options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_argument("disable-blink-features=AutomationControlled")
 
 def scrapePage(link):
-    driver = webdriver.Chrome(options=options)     
-
+    driver = webdriver.Chrome(options=options)
     try:
         driver.get(link)                      
-        name = driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[1]/div/div[1]/h1') #nazwa przedmiotu                      
+        name = driver.find_element(By.CSS_SELECTOR, 'h1[data-name="productTitle"]')  
+        print(name.text)       
         try:
-            price1 = driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[2]/div[2]/div/div[2]/p/span') #cena z kodem rabatowym, czasem niestety klasyczna gdy przecena
-            price2 = driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[2]/div[2]/div/div[1]/div/div') #cena klasyczna
-            price1value = price1.text[:-3].replace(',','.').replace(" ","")
-            price2value = price2.text[:-3].replace(',','.').replace(" ","")
-            price = price1 if price1value < price2value else price2
-        except:   
-            try:                                       
-                price = driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[2]/div[2]/div/div[1]/div/div') #cena klasyczna
-            except:
-                print("Nie znaleziono ceny")
-        links[link][1] = price.text[:-3].replace(',','.').replace(" ","")
-        links[link][2] = name.text
-        try:
-            regularPrice = driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[2]/div[2]/div/div[1]/div[2]/span/span') #cena regularna przed przecena
-            print(f'{name.text}: {price.text} / {regularPrice.text}')
-        except:
-            print(f'{name.text}: {price.text}')
-        driver.close()
-        driver.quit()      
-    except: #wydluzony czas dostawy zmienia sciezki
-        try:
-            driver.get(link)                      
-            name = driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[3]/div[1]/div/div[1]/h1') #nazwa przedmiotu                      
+            price1 = driver.find_element(By.CSS_SELECTOR, ".sc-n4n86h-1.hYfBFq")     #cena standardowa
+            print(price1.text)
+            price = price1
+            
             try:
-                price1 = driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[3]/div[2]/div[2]/div/div[2]/p/span') #cena z kodem rabatowym, czasem niestety klasyczna gdy przecena
-                price2 = driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[3]/div[2]/div[2]/div/div[1]/div/div') #cena klasyczna
+                                                         # to na pewno do dodania /html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[3]/div[2]/div/div[2]/p/span
+                price2 =  driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[2]/div[2]/div/div[2]/p/span')
+                print(price2.text)
                 price1value = price1.text[:-3].replace(',','.').replace(" ","")
                 price2value = price2.text[:-3].replace(',','.').replace(" ","")
                 price = price1 if price1value < price2value else price2
-            except:   
-                try:                              
-                    price = driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[3]/div[2]/div[2]/div/div[1]/div/div') #cena klasyczna
-                except:
-                    print("Nie znaleziono ceny")
+                print(f'cena finalna: {price.text}')
+            except Exception as e:
+                print(e)
+                print("Brak ceny promocyjnej")
+                with open ('logfile.log', 'a') as file:
+                    file.write(f"""Brak ceny promocyjnej {link}\n""")
+            
             links[link][1] = price.text[:-3].replace(',','.').replace(" ","")
             links[link][2] = name.text
-            try:
-                regularPrice = driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[2]/div[2]/div/div[1]/div[2]/span/span') #cena regularna przed przecena
-                print(f'{name.text}: {price.text} / {regularPrice.text}')
-            except:
-                print(f'{name.text}: {price.text}')
-            driver.close()
-            driver.quit() 
-        except:
-            print("Nie znaleziono przedmiotu") 
-            driver.close()
-            driver.quit()  
+
+            print(f'{name.text}: {price.text}')
+            driver.close()  
+            
+        except Exception as e:
+            print(e)
+            print("ceny nie znaleziono")  
+            with open ('logfile.log', 'a') as file:
+                file.write(f"""Nie znaleziono ceny {link}\n""") 
+
+        #driver.quit()                      
+    except:
+        print("Brak produktu")
+        with open ('logfile.log', 'a') as file:
+            file.write(f"""Nie znaleziono przedmiotu {link}\n""")
         
         
 if __name__ == '__main__':
@@ -86,3 +75,8 @@ if __name__ == '__main__':
                     print(f'Przedmiot {price[2]} kosztuje mniej o {abs(round(float(price[1]) - float(price[0]),0))} zł od ceny oczekiwanej.')
         except:
             print("blad danych")
+    kill_command = 'taskkill /F /IM chrome.exe /T'
+
+# Execute the command
+    subprocess.run(kill_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
