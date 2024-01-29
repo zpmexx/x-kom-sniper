@@ -30,7 +30,7 @@ def scrapePage(link):
     try:
         driver.get(link)                      
         name = driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[1]/div/div[1]/h1') #nazwa przedmiotu                      
-        try:
+        try:                                        
             price1 = driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[2]/div[2]/div/div[2]/p/span') #cena z kodem rabatowym, czasem niestety klasyczna gdy przecena
             price2 = driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[2]/div[2]/div/div[1]/div/div') #cena klasyczna
             price1value = price1.text[:-3].replace(',','.').replace(" ","")
@@ -110,6 +110,7 @@ def sendResultViaEmail(links):
     to_address_str = os.getenv('to_address')
     #app_password = os.getenv('app_password_gmail')
     password = os.getenv('password')
+    my_address = os.getenv('my_address')
     
     now = datetime.now()
     formatDateTime = now.strftime("%d/%m/%Y %H:%M")
@@ -158,6 +159,27 @@ def sendResultViaEmail(links):
             with open ('logfile.log', 'a') as file:
                 file.write(f"""{formatDateTime} Problem z wysłaniem na maile\n{str(e)}\n""")
     else:
+        sum = 0
+        try:
+            for link, price in links.items():
+                print(link, price)
+                sum += float(price[0])
+        except Exception as e:
+            with open ('logfile.log', 'a') as file:
+                file.write(f"""{formatDateTime} Problem z sumowaniem elementów {str(e)}\n""")
+            
+        body = f"""Brak przedmiotów przecenionych. Liczba przedmiotów {len(links)}, łączna cena: {sum} """
+        msg.attach(MIMEText(body, 'html'))
+        try:
+            server = smtplib.SMTP('smtp-mail.outlook.com', 587)
+            server.starttls()
+            server.login(from_address, password)
+            text = msg.as_string()
+            server.sendmail(from_address, my_address, text)
+            server.quit()               
+        except Exception as e:
+            with open ('logfile.log', 'a') as file:
+                file.write(f"""{formatDateTime} Problem z wysłaniem na maile\n{str(e)}\n""")
         with open ('emptyresult.txt', 'a') as file:
             file.write(f"""{formatDateTime} - Brak przedmiotow\n""")
             
