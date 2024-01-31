@@ -35,9 +35,18 @@ def scrapePage(link):
             print(price1.text)
             price = price1
             
-            try:
-                                                         # to na pewno do dodania /html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[3]/div[2]/div/div[2]/p/span
+            try:                                     
+                                                         # /html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[3]/div[2]/div/div[2]/p/span
                 price2 =  driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[2]/div[2]/div/div[2]/p/span')
+                print(price2.text)
+                price1value = price1.text[:-3].replace(',','.').replace(" ","")
+                price2value = price2.text[:-3].replace(',','.').replace(" ","")
+                price = price1 if price1value < price2value else price2
+                print(f'cena finalna: {price.text}')
+            except:
+                pass
+            try:
+                price2 =  driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[3]/div[2]/div/div[2]/p/span')
                 print(price2.text)
                 price1value = price1.text[:-3].replace(',','.').replace(" ","")
                 price2value = price2.text[:-3].replace(',','.').replace(" ","")
@@ -46,7 +55,7 @@ def scrapePage(link):
             except Exception as e:
                 print(e)
                 print("Brak ceny promocyjnej")
-                with open ('logfile.log', 'a') as file:
+                with open ('nodiscountfile.log', 'a') as file:
                     file.write(f"""Brak ceny promocyjnej {link}\n""")
             
             links[link][1] = price.text[:-3].replace(',','.').replace(" ","")
