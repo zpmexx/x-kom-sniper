@@ -178,7 +178,14 @@ def sendResultViaEmail(links):
 
 if __name__ == '__main__':  
     links = {}      
-    driver = webdriver.Chrome(options=options)                     
+    driver = webdriver.Chrome(options=options) 
+    try:
+        now = datetime.now()
+        formatDateTime = now.strftime("%d/%m/%Y %H:%M")
+        with open ('nodiscountfile.log', 'a') as file:
+            file.write(f"""{formatDateTime}\n""")    
+    except:
+        pass
     try:   
         #with open('test_linki.csv') as csv_file:
         with open('linki.csv') as csv_file:
