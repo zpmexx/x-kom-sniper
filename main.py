@@ -188,12 +188,23 @@ if __name__ == '__main__':
         pass
     try:   
         #with open('test_linki.csv') as csv_file:
-        with open('linki.csv') as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=';')
-            next(csv_reader)
-            for row in csv_reader:
-                if row[1]:
-                    links[row[0]] = [row[1],0,0]
+        import pyodbc
+        load_dotenv()
+        db_password = os.getenv('db_password')
+        db_user = os.getenv('db_user')
+        db_server = os.getenv('db_server')
+        db_driver = os.getenv('db_driver')
+        db_db = os.getenv('db_db')
+
+
+        cnxn = pyodbc.connect(f'Driver={db_driver};;Server={db_server};Database={db_db};User ID={db_user};Password={db_password}')
+
+        cursor = cnxn.cursor()
+
+        cursor.execute("SELECt * FROM xkom_itemmodel where status = 0") 
+        x = cursor.fetchall()
+        for i in x:
+            links[i[2]] = [i[3],0,0]
 
         for link, price in links.items():
             scrapePage(link)
@@ -203,6 +214,7 @@ if __name__ == '__main__':
 
     writeResultToFile(links=links)
     sendResultViaEmail(links=links)
+
 
 
 kill_command = 'taskkill /F /IM chrome.exe /T'
