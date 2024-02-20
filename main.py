@@ -29,7 +29,12 @@ def scrapePage(link):
     try:
         driver.get(link)                      
         name = driver.find_element(By.CSS_SELECTOR, 'h1[data-name="productTitle"]')  
-        print(name.text)       
+        print(name.text)  
+        if links[link][4] == '':
+            print("jestem")
+            cursor.execute("UPDATE xkom_itemmodel set name = ? where id = ?", name.text, links[link][3])
+            cnxn.commit()
+            
         try:
             price1 = driver.find_element(By.CSS_SELECTOR, ".sc-n4n86h-1.hYfBFq")     #cena standardowa
             print(price1.text)
@@ -204,7 +209,9 @@ if __name__ == '__main__':
         cursor.execute("SELECt * FROM xkom_itemmodel where status = 0") 
         x = cursor.fetchall()
         for i in x:
-            links[i[2]] = [i[3],0,0]
+            id = i[0]
+            name = i[1]
+            links[i[2]] = [i[3],0,0,id,name]
 
         for link, price in links.items():
             scrapePage(link)
@@ -214,6 +221,8 @@ if __name__ == '__main__':
 
     writeResultToFile(links=links)
     sendResultViaEmail(links=links)
+    cnxn.close()
+
 
 
 
