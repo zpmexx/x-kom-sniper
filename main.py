@@ -26,14 +26,30 @@ options.add_argument("disable-blink-features=AutomationControlled")
 
 def scrapePage(link):
     driver = webdriver.Chrome(options=options)
+    
     try:
         driver.get(link)                      
         name = driver.find_element(By.CSS_SELECTOR, 'h1[data-name="productTitle"]')  
         print(name.text)  
-        if links[link][4] == '':
+        try:
+            category = driver.find_element(By.CSS_SELECTOR, '.sc-10anzls-2.kfrpkf')
+            elements = category.text.splitlines()
+            print(elements[-1])
+            if links[link][5] == '': #no category
+                print("brak kategori")
+                cursor.execute("UPDATE xkom_itemmodel set category = ? where id = ?", elements[-1], links[link][3])
+                cnxn.commit()
+        except Exception as e:
+            print(e)
+            print("Brak kategori")
+            with open ('logfile.log', 'a') as file:
+                file.write(f"""Brak kategorii {link}\n""")
+
+        if links[link][4] == '': #no name
             print("jestem")
             cursor.execute("UPDATE xkom_itemmodel set name = ? where id = ?", name.text, links[link][3])
             cnxn.commit()
+
             
         try:
             price1 = driver.find_element(By.CSS_SELECTOR, ".sc-n4n86h-1.hYfBFq")     #cena standardowa
@@ -110,6 +126,7 @@ def sendResultViaEmail(links):
     
     now = datetime.now()
     formatDateTime = now.strftime("%d/%m/%Y %H:%M")
+    formatDate = now.strftime("%Y-%m-%d")
     print(to_address_str)
     try:
         to_address = json.loads(to_address_str)
@@ -129,6 +146,7 @@ def sendResultViaEmail(links):
 
     # Email body
     body = ""
+    resultList = []
     for link, price in links.items():
         try:
             if float(price[0]) > float(price[1]):
@@ -139,7 +157,8 @@ def sendResultViaEmail(links):
         <h3>Cena przedmiotu obecnie: {price[1]} zł</h3>\n
         <h2>Różnica: {abs(round(float(price[1]) - float(price[0]),0))} zł.</h2>\n\n
         '''
-                    # print(f'Przedmiot {price[2]} kosztuje mniej o {abs(round(float(price[1]) - float(price[0]),0))} zł od ceny oczekiwanej.')
+                    resultList.append([price[2],link,price[0],price[1],abs(round(float(price[1]) - float(price[0]),0))])
+                  # print(f'Przedmiot {price[2]} kosztuje mniej o {abs(round(float(price[1]) - float(price[0]),0))} zł od ceny oczekiwanej.')
         except:
             pass
     if body:        
@@ -154,6 +173,13 @@ def sendResultViaEmail(links):
         except Exception as e:
             with open ('logfile.log', 'a') as file:
                 file.write(f"""{formatDateTime} Problem z wysłaniem na maile\n{str(e)}\n""")
+        try: #update bazy raportu na stronie
+            for row in resultList:
+                cursor.execute("insert into xkom_reportelement(item_name, link,target_price,current_price,difference,creation_date) values (?,?,?,?,?,?)",row[0],row[1],row[2],row[3],row[4],formatDate)
+                cnxn.commit()
+        except Exception as e:
+            with open ('logfile.log', 'a') as file:
+                file.write(f"""{formatDateTime} Problem z wgraniem raportu do bazy danych {str(e)}\n""")
     else:
         sum = 0
         try:
@@ -206,12 +232,13 @@ if __name__ == '__main__':
 
         cursor = cnxn.cursor()
 
-        cursor.execute("SELECt * FROM xkom_itemmodel where status = 0") 
+        cursor.execute("SELECt id,name,link,target_price,category FROM xkom_itemmodel where status = 0") 
         x = cursor.fetchall()
         for i in x:
             id = i[0]
             name = i[1]
-            links[i[2]] = [i[3],0,0,id,name]
+            category = i[4]
+            links[i[2]] = [i[3],0,0,id,name,category]
 
         for link, price in links.items():
             scrapePage(link)

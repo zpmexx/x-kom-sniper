@@ -24,6 +24,7 @@ def scrapePage(link):
         driver.get(link)    
         image_element = driver.find_element(By.CSS_SELECTOR, '.sc-1tblmgq-1.fIFmvE')
         image_src = image_element.get_attribute('src')
+        category = driver.find_element(By.CSS_SELECTOR, '.sc-10anzls-2.kfrpkf')
 
         # Process the image URL or base64 data
         if image_src.startswith('http'):
@@ -65,6 +66,10 @@ def scrapePage(link):
                                
         name = driver.find_element(By.CSS_SELECTOR, 'h1[data-name="productTitle"]')  
         print(name.text)       
+        print(category.text)
+        elements = category.text.splitlines()
+        print(elements)
+        print(elements[-1])
         try:
             price1 = driver.find_element(By.CSS_SELECTOR, ".sc-n4n86h-1.hYfBFq")     #cena standardowa
             print(price1.text)
