@@ -126,7 +126,7 @@ def sendResultViaEmail(links):
     
     now = datetime.now()
     formatDateTime = now.strftime("%d/%m/%Y %H:%M")
-    formatDate = now.strftime("%Y-%m-%d")
+    formatReportDateTime = now.strftime("%Y/%m/%d %H:%M")
     print(to_address_str)
     try:
         to_address = json.loads(to_address_str)
@@ -175,7 +175,7 @@ def sendResultViaEmail(links):
                 file.write(f"""{formatDateTime} Problem z wysłaniem na maile\n{str(e)}\n""")
         try: #update bazy raportu na stronie
             for row in resultList:
-                cursor.execute("insert into xkom_reportelement(item_name, link,target_price,current_price,difference,creation_date) values (?,?,?,?,?,?)",row[0],row[1],row[2],row[3],row[4],formatDate)
+                cursor.execute("insert into xkom_reportelement(item_name, link,target_price,current_price,difference,creation_date) values (?,?,?,?,?,?)",row[0],row[1],row[2],row[3],row[4],formatReportDateTime)
                 cnxn.commit()
         except Exception as e:
             with open ('logfile.log', 'a') as file:
