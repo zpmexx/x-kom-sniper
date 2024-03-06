@@ -102,7 +102,7 @@ def writeResultToFile(links):
     with open ('results.txt', 'w') as file:
         for link, price in links.items():
             try:
-                if float(price[0]) > float(price[1]):
+                if float(price[0]) >= float(price[1]):
                     if price[2] != 0: #zly link badz zla wartosc w pliku linki.csv
                         file.write(
 f'''Przedmiot: {price[2]}
@@ -149,7 +149,7 @@ def sendResultViaEmail(links):
     resultList = []
     for link, price in links.items():
         try:
-            if float(price[0]) > float(price[1]):
+            if float(price[0]) >= float(price[1]):
                 if price[2] != 0: #zly link badz zla wartosc w pliku linki.csv
                     body += f'''<h1 style="color:red">Przedmiot: {price[2]}</h1>\n
         <h2>Link: {link}</h2>\n
