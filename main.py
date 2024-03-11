@@ -153,9 +153,10 @@ def sendResultViaEmail(links):
                 if price[2] != 0: #zly link badz zla wartosc w pliku linki.csv
                     body += f'''<h1 style="color:red">Przedmiot: {price[2]}</h1>\n
         <h2>Link: {link}</h2>\n
+        <h3>Cena startowa: {price[6]} zł</h3>\n
         <h3>Cena za która chcieliśmy kupić: {price[0]} zł</h3>\n
         <h3>Cena przedmiotu obecnie: {price[1]} zł</h3>\n
-        <h2>Różnica: {abs(round(float(price[1]) - float(price[0]),0))} zł.</h2>\n\n
+        <h2>Różnica: {abs(round(float(price[6]) - float(price[0]),0))}/{abs(round(float(price[1]) - float(price[0]),0))} zł.</h2>\n\n
         '''
                     resultList.append([price[2],link,price[0],price[1],abs(round(float(price[1]) - float(price[0]),0))])
                   # print(f'Przedmiot {price[2]} kosztuje mniej o {abs(round(float(price[1]) - float(price[0]),0))} zł od ceny oczekiwanej.')
@@ -232,13 +233,14 @@ if __name__ == '__main__':
 
         cursor = cnxn.cursor()
 
-        cursor.execute("SELECt id,name,link,target_price,category FROM xkom_itemmodel where status = 0") 
+        cursor.execute("SELECt id,name,link,target_price,category,current_price FROM xkom_itemmodel where status = 0") 
         x = cursor.fetchall()
         for i in x:
             id = i[0]
             name = i[1]
             category = i[4]
-            links[i[2]] = [i[3],0,0,id,name,category]
+            current_price = i[5]
+            links[i[2]] = [i[3],0,0,id,name,category,current_price]
 
         for link, price in links.items():
             scrapePage(link)
