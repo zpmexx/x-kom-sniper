@@ -71,28 +71,39 @@ def scrapePage(link):
         print(elements)
         print(elements[-1])
         try:
-            price1 = driver.find_element(By.CSS_SELECTOR, ".sc-n4n86h-1.hYfBFq")     #cena standardowa
+                                                    #sc-fzqAbL VtZxm sc-o28yi1-2 fPROAJ
+                                                    #sc-fzqAbL iHxQAy sc-11gqal2-1 kreaNb
+                                                    
+            price1 = driver.find_element(By.CSS_SELECTOR, ".sc-fzqAbL.VtZxm.sc-o28yi1-2.fPROAJ")     #cena standardowa
             print(price1.text)
-            price = price1
+            price = price1.text.split('zł')[0].replace(',','.').replace(' ','')
             
             try:
                                                          # to na pewno do dodania /html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[3]/div[2]/div/div[2]/p/span
-                price2 =  driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[2]/div[2]/div/div[2]/p/span')
+                                                         #/html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[2]/div[2]/div/p/span
+                                                         #sc-fzqAbL iHxQAy sc-11gqal2-1 kreaNb
+                                                        # sc-fzqAbL.cIgqIB
+                price2 =  driver.find_element(By.CSS_SELECTOR, ".sc-1qdf3pj-0.jrtOIu")  
+                
+                
                 print(price2.text)
-                price1value = price1.text[:-3].replace(',','.').replace(" ","")
-                price2value = price2.text[:-3].replace(',','.').replace(" ","")
-                price = price1 if price1value < price2value else price2
-                print(f'cena finalna: {price.text}')
+                price1value = price1.text.split('zł')[0].replace(',','.').replace(' ','')
+                print(f'wartosc price1value: {price1value}')
+                price2value = price2.text.split('zł')[0].replace(',','.').replace(' ','')
+                print(f'wartosc price2value: {price2value}')
+                price = price1value if price1value < price2value else price2value
+                print(f'cena finalna: {price}')
             except Exception as e:
                 print(e)
                 print("Brak ceny promocyjnej")
                 with open ('logfile.log', 'a') as file:
                     file.write(f"""Brak ceny promocyjnej {link}\n""")
             
-            links[link][1] = price.text[:-3].replace(',','.').replace(" ","")
+            links[link][1] = price
+            #links[link][1] = price.text[:-3].replace(',','.').replace(" ","")
             links[link][2] = name.text
 
-            print(f'{name.text}: {price.text}')
+            print(f'{name.text}: {price}')
             driver.close()  
             
         except Exception as e:
@@ -123,8 +134,9 @@ if __name__ == '__main__':
             if float(price[0]) > float(price[1]):
                 if price[2] != 0: #zly link badz zla wartosc w pliku linki.csv
                     print(f'Przedmiot {price[2]} kosztuje mniej o {abs(round(float(price[1]) - float(price[0]),0))} zł od ceny oczekiwanej.')
-        except:
+        except Exception as e:
             print("blad danych")
+            print(e)
     kill_command = 'taskkill /F /IM chrome.exe /T'
 
 # Execute the command
