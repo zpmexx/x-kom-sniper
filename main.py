@@ -71,7 +71,7 @@ def scrapePage(link):
             except Exception as e:
                 print(e)
                 print("Brak ceny promocyjnej")
-                with open ('logfile.log', 'a') as file:
+                with open ('nodiscountfile.log', 'a') as file:
                     file.write(f"""Brak ceny promocyjnej {link}\n""")
             
             links[link][1] = price
@@ -172,6 +172,7 @@ def sendResultViaEmail(links):
                 file.write(f"""{formatDateTime} Problem z wysłaniem na maile\n{str(e)}\n""")
         try: #update bazy raportu na stronie
             for row in resultList:
+                print(row)
                 cursor.execute("insert into xkom_reportelement(item_name, link,target_price,current_price,difference,creation_date) values (?,?,?,?,?,?)",row[0],row[1],row[2],row[3],row[4],formatReportDateTime)
                 cnxn.commit()
         except Exception as e:
@@ -211,7 +212,10 @@ if __name__ == '__main__':
         now = datetime.now()
         formatDateTime = now.strftime("%d/%m/%Y %H:%M")
         with open ('nodiscountfile.log', 'a') as file:
-            file.write(f"""{formatDateTime}\n""")    
+            file.write(f"""{formatDateTime}\n""")  
+            
+        with open ('logfile.log', 'a') as file:
+            file.write(f"""{formatDateTime}\n""") 
     except:
         pass
     try:   
