@@ -74,7 +74,7 @@ def scrapePage(link):
                                                     #sc-fzqAbL VtZxm sc-o28yi1-2 fPROAJ
                                                     #sc-fzqAbL iHxQAy sc-11gqal2-1 kreaNb
                                                     
-            price1 = driver.find_element(By.CSS_SELECTOR, ".sc-fzqMAW.kJjsoe.sc-o28yi1-2.fPROAJ")     #cena standardowa
+            price1 = driver.find_element(By.CSS_SELECTOR, ".sc-fzqMAW.gHIvzZ.sc-o28yi1-2.huvLfx")     #cena standardowa
             print('cena standardowa:')
             print(price1.text)
             price = price1.text.split('zł')[0].replace(',','.').replace(' ','')
@@ -92,7 +92,7 @@ def scrapePage(link):
                 print(f'wartosc price1value: {price1value}')
                 price2value = price2.text.split('zł')[0].replace(',','.').replace(' ','')
                 print(f'wartosc price2value: {price2value}')
-                price = price1value if price1value < price2value else price2value
+                price = price1value if float(price1value) < float(price2value) else price2value
                 print(f'cena finalna: {price}')
             except Exception as e:
                 print(e)
