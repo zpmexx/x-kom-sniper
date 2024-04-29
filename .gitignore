@@ -164,3 +164,4 @@ cython_debug/
 *.txt
 test.py
 linki.csv
+tomek*

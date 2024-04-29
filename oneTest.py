@@ -74,7 +74,8 @@ def scrapePage(link):
                                                     #sc-fzqAbL VtZxm sc-o28yi1-2 fPROAJ
                                                     #sc-fzqAbL iHxQAy sc-11gqal2-1 kreaNb
                                                     
-            price1 = driver.find_element(By.CSS_SELECTOR, ".sc-fzqAbL.VtZxm.sc-o28yi1-2.fPROAJ")     #cena standardowa
+            price1 = driver.find_element(By.CSS_SELECTOR, ".sc-fzqMAW.kJjsoe.sc-o28yi1-2.fPROAJ")     #cena standardowa
+            print('cena standardowa:')
             print(price1.text)
             price = price1.text.split('zł')[0].replace(',','.').replace(' ','')
             
@@ -83,9 +84,9 @@ def scrapePage(link):
                                                          #/html/body/div[1]/div[2]/div/div[1]/div[3]/div[2]/div[2]/div[2]/div/p/span
                                                          #sc-fzqAbL iHxQAy sc-11gqal2-1 kreaNb
                                                         # sc-fzqAbL.cIgqIB
-                price2 =  driver.find_element(By.CSS_SELECTOR, ".sc-1qdf3pj-0.jrtOIu")  
-                
-                
+
+                price2 =  driver.find_element(By.CSS_SELECTOR, ".sc-1qdf3pj-0.jrtOIu")  #kilka css selectorw wyzej, dalej usuwa sie reszte
+                print("cena promocyjna:")
                 print(price2.text)
                 price1value = price1.text.split('zł')[0].replace(',','.').replace(' ','')
                 print(f'wartosc price1value: {price1value}')
