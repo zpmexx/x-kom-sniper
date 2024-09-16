@@ -30,7 +30,7 @@ def scrapePage(link):
         driver.get(link)                      
         name = driver.find_element(By.CSS_SELECTOR, 'h1[data-name="productTitle"]')  
         try:
-            category = driver.find_element(By.CSS_SELECTOR, '.sc-10anzls-2.kfrpkf')
+            category = driver.find_element(By.CSS_SELECTOR, '.parts__BreadcrumbsWrapper-sc-67f74feb-2.kkEvdk')
             elements = category.text.splitlines()
             print("kategoria ze strony:")
             print(elements[-1])
@@ -38,7 +38,7 @@ def scrapePage(link):
             print(links[link][5])
             if links[link][5] == '': #no category
                 print("brak kategori")
-                cursor.execute("UPDATE xkom_itemmodel set category = ? where id = ?", elements[-1], links[link][3])
+                cursor.execute("UPDATE xkom_itemmodel set category = ? where id = ?", elements[-4], links[link][3])
                 cnxn.commit()
         except Exception as e:
             print(e)

@@ -21,60 +21,20 @@ options.add_argument("disable-blink-features=AutomationControlled")
 def scrapePage(link):
     driver = webdriver.Chrome(options=options)
     try:
+        print("wchodze")
         driver.get(link)    
-        image_element = driver.find_element(By.CSS_SELECTOR, '.sc-1tblmgq-1.fIFmvE')
-        image_src = image_element.get_attribute('src')
-        category = driver.find_element(By.CSS_SELECTOR, '.sc-10anzls-2.kfrpkf')
-
-        # Process the image URL or base64 data
-        if image_src.startswith('http'):
-            # If the src is a URL, download the image using requests
-            response = requests.get(image_src)
-            if response.status_code == 200:
-                with open('downloaded_image.jpg', 'wb') as file:
-                    file.write(response.content)
-                print("Image downloaded successfully.")
-            else:
-                print("Failed to download the image.")
-        elif image_src.startswith('data:image'):
-            # If the src is a base64 encoded image, decode and save it directly
-            base64_data = image_src.split(',', 1)[1]
-            with open('downloaded_image.jpg', 'wb') as file:
-                file.write(base64.b64decode(base64_data))
-            print("Base64 image decoded and saved successfully.")
-        else:
-            print("Image source format not recognized.")
-    #     print(image)
-    #     print(image.text)
-    #     print("E")
-    #     image_url = image.get_attribute('src')
-    #     print('f')
-    #     import base64
-    #     base64_data = image_url.split(',', 1)[1]
-    #     image_data = base64.b64decode(base64_data)
-    #     print(image_url)
-    #     response = requests.get(image_url)
-    #     print('g')
-    #     current_directory = os.getcwd()
-        
-    #     image_filename = os.path.join(current_directory, 'downloaded_image.jpg')  # Update the path and filename as needed
-
-    # # Save the image
-    #     if response.status_code == 200:
-    #         with open(image_filename, 'wb') as f:
-    #             f.write(image_data)   
-                               
+        category = driver.find_element(By.CSS_SELECTOR, '.parts__BreadcrumbsWrapper-sc-67f74feb-2.bKRaiX')
+        print(f"kategoria: {category.text}")                
         name = driver.find_element(By.CSS_SELECTOR, 'h1[data-name="productTitle"]')  
-        print(name.text)       
-        print(category.text)
+        print(f"nazwa: {name.text}") 
         elements = category.text.splitlines()
-        print(elements)
-        print(elements[-1])
+        #print(elements)
+        print(elements[-4])
         try:
                                                     #sc-fzqAbL VtZxm sc-o28yi1-2 fPROAJ
                                                     #sc-fzqAbL iHxQAy sc-11gqal2-1 kreaNb
                                                     
-            price1 = driver.find_element(By.CSS_SELECTOR, ".sc-fzqMAW.gHIvzZ.sc-o28yi1-2.huvLfx")     #cena standardowa
+            price1 = driver.find_element(By.CSS_SELECTOR, ".sc-emqRaN.cfSJSM.parts__Price-sc-53da58c9-2.hbVORa")     #cena standardowa
             print('cena standardowa:')
             print(price1.text)
             price = price1.text.split('zł')[0].replace(',','.').replace(' ','')
@@ -85,7 +45,7 @@ def scrapePage(link):
                                                          #sc-fzqAbL iHxQAy sc-11gqal2-1 kreaNb
                                                         # sc-fzqAbL.cIgqIB
 
-                price2 =  driver.find_element(By.CSS_SELECTOR, ".sc-1qdf3pj-0.jrtOIu")  #kilka css selectorw wyzej, dalej usuwa sie reszte
+                price2 =  driver.find_element(By.CSS_SELECTOR, ".parts__PriceWrapper-sc-b4da89df-0.rRpBl")  #kilka css selectorw wyzej, dalej usuwa sie reszte
                 print("cena promocyjna:")
                 print(price2.text)
                 price1value = price1.text.split('zł')[0].replace(',','.').replace(' ','')
@@ -124,7 +84,8 @@ def scrapePage(link):
 if __name__ == '__main__':
     links = {}
     testLink = str(input("Podaj link do przedmiotu: "))
-    testPrice = float(input("Podaj cene przedmiotu za jaka maksymalnie mozesz kupic: "))
+    #testPrice = float(input("Podaj cene przedmiotu za jaka maksymalnie mozesz kupic: "))
+    testPrice = 1
     links[testLink] = [testPrice,0,0]
     for link, price in links.items():
         scrapePage(link)
