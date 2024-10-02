@@ -27,7 +27,6 @@ options.add_argument("disable-blink-features=AutomationControlled")
 def scrapePage(link):
     driver = webdriver.Chrome(options=options)
     try:
-        print("wchodze")
         driver.get(link)    
         category = driver.find_element(By.CSS_SELECTOR, '.parts__BreadcrumbsWrapper-sc-67f74feb-2.bKRaiX')
         print(f"kategoria: {category.text}")                
